@@ -1,0 +1,11 @@
+# .dockerignore — shared across all Docker builds
+node_modules
+.next
+dist
+uploads
+.git
+.env
+.env.local
+*.log
+coverage
+.DS_Store

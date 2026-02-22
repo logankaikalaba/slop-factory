@@ -28,7 +28,9 @@ slop-factory/
 ├── tsconfig.base.json         # Shared TS compiler options (strict, ES2022)
 ├── .npmrc                     # pnpm config (shamefully-hoist for Next.js compat)
 ├── .gitignore
+├── .dockerignore
 ├── .env.example
+├── docker-compose.yml         # Coolify-compatible compose (mongo + server + client)
 │
 ├── packages/
 │   ├── shared/                # @slop-factory/shared — shared types & constants
@@ -44,6 +46,7 @@ slop-factory/
 │   ├── server/                # @slop-factory/server — Express + MongoDB API
 │   │   ├── package.json       # Dev runner: tsx watch
 │   │   ├── tsconfig.json      # Extends ../../tsconfig.base.json
+│   │   ├── Dockerfile         # Multi-stage build: deps → build → runner
 │   │   ├── .env.example       # PORT, MONGODB_URI, UPLOAD_DIR
 │   │   └── src/
 │   │       ├── index.ts       # App bootstrap: Express setup, DB connect, route registration
@@ -63,7 +66,8 @@ slop-factory/
 │   └── client/                # @slop-factory/client — Next.js frontend
 │       ├── package.json
 │       ├── tsconfig.json      # Extends ../../tsconfig.base.json, JSX preserve
-│       ├── next.config.ts     # API proxy rewrites to localhost:4000, transpile shared
+│       ├── Dockerfile         # Multi-stage build: deps → build → standalone runner
+│       ├── next.config.ts     # standalone output, API proxy rewrites, transpile shared
 │       └── src/
 │           ├── lib/
 │           │   └── api.ts     # Typed fetch wrappers for all API endpoints
@@ -168,6 +172,62 @@ Uploaded files are stored to the local `uploads/` directory (configurable via `U
 - **Mongoose** schemas in `models/` directory, one file per collection
 - **Express routes** in `routes/` directory, one file per resource
 - All shared types live in `packages/shared/src/types/` and are re-exported from barrel `index.ts`
+
+## Docker / Deployment
+
+The project includes a Coolify-compatible `docker-compose.yml` with health checks on all services.
+
+### Services
+
+| Service  | Image / Build                | Ports             | Healthcheck                                |
+| -------- | ---------------------------- | ----------------- | ------------------------------------------ |
+| `mongo`  | `mongo:7`                    | internal only     | `mongosh --eval "db.adminCommand('ping')"` |
+| `server` | `packages/server/Dockerfile` | `4000` (internal) | `GET /api/health`                          |
+| `client` | `packages/client/Dockerfile` | `3000` (exposed)  | `GET /`                                    |
+
+### Startup Order
+
+`mongo` (healthy) → `server` (healthy) → `client`
+
+### Volumes
+
+- `mongo_data` — MongoDB data directory (`/data/db`)
+- `uploads` — Uploaded media files (`/app/uploads` on server)
+
+### Coolify Notes
+
+- Only the `client` service exposes a port (`$PORT` env var, default 3000). Coolify maps this to the public domain.
+- `server` and `mongo` are on an internal bridge network only.
+- All services use `restart: unless-stopped`.
+- The client reaches the server via Docker internal DNS (`http://server:4000`) using the `INTERNAL_API_URL` env var.
+- Coolify can override any environment variable at deploy time.
+
+### Docker Commands
+
+```bash
+# Build and start all services
+docker compose up --build -d
+
+# View logs
+docker compose logs -f
+
+# Stop everything
+docker compose down
+
+# Destroy volumes too
+docker compose down -v
+```
+
+### Dockerfiles
+
+Both Dockerfiles use multi-stage builds from the **repo root** context:
+
+1. **`base`** — `node:22-alpine` + pnpm via corepack
+2. **`deps`** — Copies only `package.json` / lockfile for layer-cached installs
+3. **`build`** — Copies source & compiles (`shared` first, then target package)
+4. **`runner`** — Minimal production image with built artifacts only
+
+Server runs `node packages/server/dist/index.js`. Client uses Next.js standalone output (`node packages/client/server.js`).
 
 ## Future / Reserved
 
