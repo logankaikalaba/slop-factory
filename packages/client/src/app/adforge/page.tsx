@@ -237,46 +237,75 @@ export default function AdForgePage() {
       height: '100%',
       display: 'flex',
       flexDirection: 'column',
-      background: '#0b0b14',
+      background: '#05050A',
       overflow: 'hidden',
     }}>
       {/* ── Topbar ── */}
       <div style={{
-        height: 52,
-        background: 'rgba(17, 17, 32, 0.95)',
-        borderBottom: '1px solid rgba(255,255,255,0.07)',
-        backdropFilter: 'blur(16px)',
+        height: 56,
+        background: 'rgba(8, 8, 18, 0.85)',
+        borderBottom: '1px solid rgba(255,255,255,0.06)',
+        backdropFilter: 'blur(24px)',
+        WebkitBackdropFilter: 'blur(24px)',
         display: 'flex',
         alignItems: 'center',
         padding: '0 20px',
-        gap: 20,
+        gap: 16,
         zIndex: 100,
         flexShrink: 0,
+        animation: 'fade-up 0.4s cubic-bezier(0.16,1,0.3,1) 0.05s both',
       }}>
         {/* Logo */}
         <div style={{
-          fontWeight: 800,
-          fontSize: 15,
-          letterSpacing: '-0.04em',
-          color: '#f0f0fa',
-          userSelect: 'none',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
           flexShrink: 0,
         }}>
-          Ad<span style={{
-            background: 'linear-gradient(135deg, #7c6df0, #a097f7)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-          }}>Forge</span>
+          {/* Logo mark */}
+          <div style={{
+            width: 22,
+            height: 22,
+            borderRadius: 6,
+            background: 'linear-gradient(135deg, #00FFA3, #00C3FF)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+            boxShadow: '0 0 10px rgba(0,255,163,0.4)',
+          }}>
+            <span style={{ fontSize: 11, fontWeight: 900, color: '#020A06', letterSpacing: '-0.02em', fontFamily: 'var(--font-mono, monospace)' }}>AF</span>
+          </div>
+          <div style={{
+            fontWeight: 800,
+            fontSize: 14,
+            letterSpacing: '-0.04em',
+            color: '#FAF8F5',
+            userSelect: 'none',
+          }}>
+            Ad<span style={{
+              background: 'linear-gradient(90deg, #00FFA3, #00C3FF)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+            }}>Forge</span>
+          </div>
         </div>
 
         {/* Divider */}
-        <div style={{ width: 1, height: 18, background: 'rgba(255,255,255,0.08)', flexShrink: 0 }} />
+        <div style={{ width: 1, height: 20, background: 'rgba(255,255,255,0.07)', flexShrink: 0 }} />
 
         <PhaseBar phase={phase} />
 
-        <button onClick={handleReset} className="af-btn af-btn-primary" style={{ marginLeft: 'auto' }}>
-          + New Campaign
-        </button>
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 10 }}>
+          <button
+            onClick={handleReset}
+            className="af-btn af-btn-primary"
+            style={{ fontSize: 11, padding: '7px 14px', borderRadius: 10 }}
+          >
+            <span style={{ fontSize: 13, lineHeight: 1 }}>+</span>
+            New Campaign
+          </button>
+        </div>
       </div>
 
       {/* ── Main split ── */}

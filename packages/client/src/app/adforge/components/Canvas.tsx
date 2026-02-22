@@ -36,10 +36,27 @@ export function Canvas({
       if (offer) return <OfferCard offer={offer} />
       if (avatar) return <AvatarBriefCard avatar={avatar} />
       return (
-        <div style={{ textAlign: 'center' as const, display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: 14 }}>
-          <div className="af-icon-pulse" style={{ fontSize: 56, lineHeight: 1 }}>⚡</div>
-          <div style={{ fontSize: 13, color: '#40405f', lineHeight: 1.7 }}>
-            Create or select an offer and avatar to begin.
+        <div style={{
+          textAlign: 'center' as const,
+          display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: 20,
+        }}>
+          <div
+            className="af-icon-pulse"
+            style={{ fontSize: 60, lineHeight: 1 }}
+            aria-hidden="true"
+          >
+            ⚡
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <div style={{
+              fontSize: 15, fontWeight: 700, color: '#FAF8F5',
+              letterSpacing: '-0.03em',
+            }}>
+              Ready to forge.
+            </div>
+            <div style={{ fontSize: 12, color: '#3A3A50', lineHeight: 1.7, maxWidth: 280 }}>
+              Create or select an offer and avatar<br />to begin your campaign.
+            </div>
           </div>
         </div>
       )
@@ -105,36 +122,88 @@ export function Canvas({
     }
 
     return (
-      <div style={{ textAlign: 'center' as const, display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: 10 }}>
-        <div className="af-icon-pulse" style={{ fontSize: 48, lineHeight: 1, fontFamily: 'monospace', color: '#7c6df0' }}>{String(phase + 1).padStart(2, '0')}</div>
-        <div style={{ fontSize: 11, color: '#40405f' }}>Phase {phase + 1} loading...</div>
+      <div style={{
+        textAlign: 'center' as const,
+        display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: 14,
+      }}>
+        <div
+          className="af-icon-pulse"
+          style={{
+            fontSize: 48, lineHeight: 1,
+            fontFamily: 'var(--font-mono, monospace)',
+          }}
+          aria-hidden="true"
+        >
+          {String(phase + 1).padStart(2, '0')}
+        </div>
+        <div style={{ fontSize: 11, color: '#3A3A50', letterSpacing: '0.04em', fontFamily: 'var(--font-mono, monospace)' }}>
+          Phase {phase + 1} loading...
+        </div>
       </div>
     )
   }
 
   return (
     <div style={{
-      flex: 1, background: '#0b0b14', padding: 24,
+      flex: 1, background: '#05050A', padding: 32,
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       position: 'relative', overflow: 'hidden',
+      animation: 'fade-up 0.5s cubic-bezier(0.16,1,0.3,1) 0.2s both',
     }}>
-      {/* Ambient background glows */}
-      <div style={{
+      {/* ── Ambient background glows ── */}
+      <div aria-hidden="true" style={{
         position: 'absolute', inset: 0, pointerEvents: 'none',
         background: `
-          radial-gradient(ellipse at 25% 35%, rgba(124,109,240,0.06) 0%, transparent 55%),
-          radial-gradient(ellipse at 75% 65%, rgba(32,212,160,0.03) 0%, transparent 55%)
+          radial-gradient(ellipse at 20% 30%, rgba(0,255,163,0.04) 0%, transparent 50%),
+          radial-gradient(ellipse at 80% 70%, rgba(0,195,255,0.03) 0%, transparent 50%),
+          radial-gradient(ellipse at 50% 50%, rgba(124,109,240,0.02) 0%, transparent 70%)
         `,
       }} />
 
-      {/* Phase number watermark */}
-      <div style={{ position: 'absolute', top: 20, left: 24, zIndex: 1, pointerEvents: 'none' }}>
-        <div style={{ fontSize: 52, fontWeight: 800, color: '#7c6df0', opacity: 0.06, fontFamily: 'monospace', lineHeight: 1, letterSpacing: '-0.04em' }}>
+      {/* ── Architecture depth: phase watermark ── */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: 'absolute',
+          bottom: -40,
+          right: -20,
+          zIndex: 1,
+          pointerEvents: 'none',
+          userSelect: 'none',
+        }}
+      >
+        <div style={{
+          fontSize: 'clamp(120px, 18vw, 220px)',
+          fontWeight: 900,
+          color: '#FAF8F5',
+          opacity: 0.025,
+          fontFamily: 'Georgia, "Times New Roman", serif',
+          lineHeight: 1,
+          letterSpacing: '-0.06em',
+        }}>
           {String(phase + 1).padStart(2, '0')}
         </div>
       </div>
 
-      <div style={{ position: 'relative', zIndex: 2, animation: 'fade-up 0.35s cubic-bezier(0.16,1,0.3,1) both' }}>
+      {/* ── Top-left phase indicator ── */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: 'absolute', top: 20, left: 24, zIndex: 1, pointerEvents: 'none',
+        }}
+      >
+        <div style={{
+          fontSize: 11,
+          fontWeight: 600,
+          color: '#2A2A3F',
+          fontFamily: 'var(--font-mono, monospace)',
+          letterSpacing: '0.06em',
+        }}>
+          PHASE_{String(phase + 1).padStart(2, '0')}
+        </div>
+      </div>
+
+      <div style={{ position: 'relative', zIndex: 2, animation: 'fade-up 0.4s cubic-bezier(0.16,1,0.3,1) both' }}>
         {renderContent()}
       </div>
     </div>
