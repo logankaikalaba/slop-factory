@@ -50,7 +50,7 @@ export function SetupModal({ onStart, onDismiss }: Props) {
   const [error, setError] = useState('')
 
   const [offerForm, setOfferForm] = useState({ productName: '', productDescription: '', targetAudience: '' })
-  const [avatarForm, setAvatarForm] = useState({ targetDescription: '', industry: '' })
+  const [avatarLabel, setAvatarLabel] = useState('')
 
   const refreshLists = async () => {
     const [o, a] = await Promise.all([
@@ -93,27 +93,26 @@ export function SetupModal({ onStart, onDismiss }: Props) {
   }
 
   const handleGenerateAvatar = async () => {
-    if (!offerId) { setError('Select an offer first before creating an avatar.'); return }
-    if (!avatarForm.targetDescription || !avatarForm.industry) {
-      setError('Please fill in all fields.')
+    if (!avatarLabel.trim()) {
+      setError('Please enter your avatar.')
       return
     }
     setError('')
     setGenerating(true)
     try {
-      const res = await fetch('/api/adforge/avatars/generate', {
+      const res = await fetch('/api/adforge/avatars/deep-research', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ offerId, ...avatarForm }),
+        body: JSON.stringify({ avatarLabel: avatarLabel.trim() }),
       })
       const data = await res.json()
       if (!data.success) throw new Error(data.error as string)
       await refreshLists()
       setAvatarId((data.data as { _id: string })._id)
-      setAvatarForm({ targetDescription: '', industry: '' })
+      setAvatarLabel('')
       setStep('select')
     } catch {
-      setError('Generation failed. Check that the server is running and your Anthropic key is set.')
+      setError('Research failed. Check that the server is running and your Anthropic key is set.')
     } finally {
       setGenerating(false)
     }
@@ -196,40 +195,37 @@ export function SetupModal({ onStart, onDismiss }: Props) {
             }}>
               ← Back
             </button>
-            <h2 style={{ fontSize: 16, marginBottom: 4, color: '#e4e4ef' }}>Create Avatar</h2>
+            <h2 style={{ fontSize: 16, marginBottom: 4, color: '#e4e4ef' }}>Who is your avatar?</h2>
             <p style={{ fontSize: 11, color: '#7a7a95', marginBottom: 18 }}>
-              AI will build a full psychological customer profile for your offer.
-              {!offerId && <span style={{ color: '#ffa94d' }}> Select an offer first.</span>}
+              Enter a profession, demographic, or target audience. AI will conduct deep research and build a comprehensive psychological profile.
             </p>
-            <div style={{ marginBottom: 12 }}>
-              <label style={labelStyle}>Describe the customer</label>
-              <textarea
-                style={{ ...inputStyle, height: 72, resize: 'none' as const }}
-                placeholder="e.g. Owner-operator roofers aged 35-55 who run small crews and struggle with quoting jobs accurately"
-                value={avatarForm.targetDescription}
-                onChange={(e) => setAvatarForm((p) => ({ ...p, targetDescription: e.target.value }))}
-              />
-            </div>
             <div style={{ marginBottom: 20 }}>
-              <label style={labelStyle}>Industry</label>
+              <label style={labelStyle}>Avatar</label>
               <input
                 style={inputStyle}
-                placeholder="e.g. Residential roofing / home services"
-                value={avatarForm.industry}
-                onChange={(e) => setAvatarForm((p) => ({ ...p, industry: e.target.value }))}
+                placeholder="e.g. landlords, gym owners, plumbers"
+                value={avatarLabel}
+                onChange={(e) => setAvatarLabel(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter' && !generating) handleGenerateAvatar() }}
+                autoFocus
               />
             </div>
+            {generating && (
+              <p style={{ fontSize: 11, color: '#a29bfe', marginBottom: 10, textAlign: 'center' as const }}>
+                Conducting deep research... this takes 30–60 seconds.
+              </p>
+            )}
             {error && <p style={{ color: '#ff6b6b', fontSize: 11, marginBottom: 10 }}>{error}</p>}
             <button
               onClick={handleGenerateAvatar}
-              disabled={generating || !offerId}
+              disabled={generating}
               style={{
-                width: '100%', background: generating || !offerId ? '#2a2a3d' : '#6c5ce7',
+                width: '100%', background: generating ? '#2a2a3d' : '#6c5ce7',
                 color: '#fff', border: 'none', padding: 11, borderRadius: 9,
-                fontSize: 13, fontWeight: 600, cursor: generating || !offerId ? 'default' : 'pointer',
+                fontSize: 13, fontWeight: 600, cursor: generating ? 'default' : 'pointer',
               }}
             >
-              {generating ? '⏳ Generating avatar...' : '✨ Generate Avatar with AI →'}
+              {generating ? '⏳ Researching avatar...' : '🔍 Research Avatar →'}
             </button>
           </>
         )}

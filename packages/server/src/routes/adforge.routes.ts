@@ -9,6 +9,7 @@ import { Script } from '../models/script.model.js'
 import { downloadAndSave } from '../lib/freepik.js'
 import { buildOffer } from '../agents/offer-builder.js'
 import { buildAvatar } from '../agents/avatar-researcher.js'
+import { buildAvatarDeepResearch } from '../agents/avatar-deep-researcher.js'
 
 const router = express.Router()
 
@@ -72,6 +73,20 @@ router.post('/offers/generate', async (req, res, next) => {
     }
     const offer = await buildOffer({ productName, productDescription, targetAudience, userNotes })
     res.status(201).json({ success: true, data: offer })
+  } catch (err) {
+    next(err)
+  }
+})
+
+// Deep research avatar from a single label (no offer required)
+router.post('/avatars/deep-research', async (req, res, next) => {
+  try {
+    const { avatarLabel } = req.body as { avatarLabel: string }
+    if (!avatarLabel?.trim()) {
+      return res.status(400).json({ success: false, error: 'avatarLabel is required' })
+    }
+    const avatar = await buildAvatarDeepResearch(avatarLabel.trim())
+    res.status(201).json({ success: true, data: avatar })
   } catch (err) {
     next(err)
   }
