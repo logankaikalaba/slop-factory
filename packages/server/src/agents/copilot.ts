@@ -10,6 +10,7 @@ import { TransitionPrompt } from '../models/transition-prompt.model.js'
 import { VideoSegment } from '../models/video-segment.model.js'
 import { Message } from '../models/message.model.js'
 import { writeScript } from './script-writer.js'
+import { runCopyQualityGate } from './copy-quality-gate.js'
 import { lockConsistency } from './consistency-enforcer.js'
 import { generateKeyframePrompts } from './image-prompt-engineer.js'
 import { writeTransitionPrompts } from './transition-prompt-writer.js'
@@ -97,7 +98,7 @@ RULES:
     maxSteps: 10,
     tools: {
       generateScript: tool({
-        description: 'Generate ad scripts for all 5 sections using the Script Writer agent',
+        description: 'Generate ad scripts for all 5 sections using the Script Writer agent, then audit with the Copy Quality Gate',
         parameters: z.object({}),
         execute: async () => {
           if (!offer || !avatar) return { error: 'Offer or avatar not loaded' }
@@ -108,14 +109,49 @@ RULES:
             adFormat: conv.adFormat,
             durationTargets: conv.durationAllocation,
           })
+
+          // Map scripts by section for easy lookup
+          const bySection = Object.fromEntries(scripts.map((s) => [s.section, s]))
+
+          // Run the two-agent quality gate (Auditor → Validator loop, max 3 rounds)
+          const platform = conv.adFormat === 'ugc' ? 'Instagram' : 'Facebook'
+          const gateResult = await runCopyQualityGate({
+            avatar,
+            platform,
+            copy: {
+              hook: bySection['hook']?.copyText ?? '',
+              problem: bySection['problem']?.copyText ?? '',
+              solution: bySection['solution']?.copyText ?? '',
+              social_proof: bySection['social_proof']?.copyText ?? '',
+              cta: bySection['cta']?.copyText ?? '',
+            },
+          })
+
+          // Update scripts in DB with the quality-gated copy
+          await Promise.all(
+            (Object.entries(gateResult.approved_copy) as Array<[keyof typeof gateResult.approved_copy, string]>).map(
+              ([section, copyText]) =>
+                Script.findOneAndUpdate({ conversationId, section }, { copyText }),
+            ),
+          )
+
           await Conversation.findByIdAndUpdate(conversationId, { phase: 2, status: 'scripting' })
+
           return {
             scripts: scripts.map((s) => ({
               section: s.section,
-              copyText: s.copyText,
+              copyText: gateResult.approved_copy[s.section as keyof typeof gateResult.approved_copy] ?? s.copyText,
               visualDescription: s.visualDescription,
               durationSeconds: s.durationSeconds,
             })),
+            quality_gate: {
+              status: gateResult.status,
+              loop_count: gateResult.loop_count,
+              scores: gateResult.scores,
+              flags: gateResult.flags,
+              requires_human_review: gateResult.status === 'needs_human_review',
+              failed_sections: gateResult.failed_sections,
+            },
           }
         },
       }),
