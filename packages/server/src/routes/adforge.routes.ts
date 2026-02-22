@@ -78,17 +78,32 @@ router.post('/offers/generate', async (req, res, next) => {
   }
 })
 
-// Deep research avatar from a single label (no offer required)
-router.post('/avatars/deep-research', async (req, res, next) => {
+// Deep research avatar from a single label — streams SSE progress events
+router.post('/avatars/deep-research', async (req, res) => {
+  const { avatarLabel } = req.body as { avatarLabel: string }
+  if (!avatarLabel?.trim()) {
+    res.status(400).json({ success: false, error: 'avatarLabel is required' })
+    return
+  }
+
+  res.setHeader('Content-Type', 'text/event-stream')
+  res.setHeader('Cache-Control', 'no-cache')
+  res.setHeader('Connection', 'keep-alive')
+  res.flushHeaders()
+
+  const send = (event: string, data: unknown) => {
+    res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`)
+  }
+
   try {
-    const { avatarLabel } = req.body as { avatarLabel: string }
-    if (!avatarLabel?.trim()) {
-      return res.status(400).json({ success: false, error: 'avatarLabel is required' })
-    }
-    const avatar = await buildAvatarDeepResearch(avatarLabel.trim())
-    res.status(201).json({ success: true, data: avatar })
+    const avatar = await buildAvatarDeepResearch(avatarLabel.trim(), (fields) => {
+      send('progress', { fields })
+    })
+    send('complete', { success: true, data: avatar })
   } catch (err) {
-    next(err)
+    send('error', { success: false, error: String(err) })
+  } finally {
+    res.end()
   }
 })
 

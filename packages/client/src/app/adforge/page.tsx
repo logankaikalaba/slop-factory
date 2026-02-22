@@ -234,49 +234,53 @@ export default function AdForgePage() {
 
   return (
     <div style={{
-      height: '100vh',
+      height: '100%',
       display: 'flex',
       flexDirection: 'column',
-      background: '#0a0a0f',
+      background: '#0b0b14',
       overflow: 'hidden',
-      fontFamily: "'Sora', 'Inter', sans-serif",
     }}>
-      {/* Topbar */}
+      {/* ── Topbar ── */}
       <div style={{
-        height: 48,
-        background: '#12121a',
-        borderBottom: '1px solid #2a2a3d',
+        height: 52,
+        background: 'rgba(17, 17, 32, 0.95)',
+        borderBottom: '1px solid rgba(255,255,255,0.07)',
+        backdropFilter: 'blur(16px)',
         display: 'flex',
         alignItems: 'center',
         padding: '0 20px',
-        gap: 16,
+        gap: 20,
         zIndex: 100,
         flexShrink: 0,
       }}>
-        <div style={{ fontWeight: 700, fontSize: 16, letterSpacing: -0.5, color: '#e4e4ef' }}>
-          Ad<span style={{ color: '#6c5ce7' }}>Forge</span>
+        {/* Logo */}
+        <div style={{
+          fontWeight: 800,
+          fontSize: 15,
+          letterSpacing: '-0.04em',
+          color: '#f0f0fa',
+          userSelect: 'none',
+          flexShrink: 0,
+        }}>
+          Ad<span style={{
+            background: 'linear-gradient(135deg, #7c6df0, #a097f7)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+          }}>Forge</span>
         </div>
+
+        {/* Divider */}
+        <div style={{ width: 1, height: 18, background: 'rgba(255,255,255,0.08)', flexShrink: 0 }} />
+
         <PhaseBar phase={phase} />
-        <button
-          onClick={handleReset}
-          style={{
-            marginLeft: 'auto',
-            background: '#6c5ce7',
-            color: '#fff',
-            border: 'none',
-            padding: '4px 12px',
-            borderRadius: 5,
-            fontSize: 11,
-            fontWeight: 600,
-            cursor: 'pointer',
-          }}
-        >
+
+        <button onClick={handleReset} className="af-btn af-btn-primary" style={{ marginLeft: 'auto' }}>
           + New Campaign
         </button>
       </div>
 
-      {/* Main split layout */}
-      <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+      {/* ── Main split ── */}
+      <div style={{ flex: 1, display: 'flex', overflow: 'hidden', minHeight: 0 }}>
         <ChatPanel
           messages={messages}
           onSend={handleSend}

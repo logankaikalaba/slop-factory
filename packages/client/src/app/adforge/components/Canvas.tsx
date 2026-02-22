@@ -36,9 +36,11 @@ export function Canvas({
       if (offer) return <OfferCard offer={offer} />
       if (avatar) return <AvatarBriefCard avatar={avatar} />
       return (
-        <div style={{ textAlign: 'center', color: '#3a3a5d' }}>
-          <div style={{ fontSize: 48, marginBottom: 16, opacity: 0.15 }}>⚡</div>
-          <div style={{ fontSize: 12 }}>Create or select an offer and avatar to begin.</div>
+        <div style={{ textAlign: 'center' as const, display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: 14 }}>
+          <div className="af-icon-pulse" style={{ fontSize: 56, lineHeight: 1 }}>⚡</div>
+          <div style={{ fontSize: 13, color: '#40405f', lineHeight: 1.7 }}>
+            Create or select an offer and avatar to begin.
+          </div>
         </div>
       )
     }
@@ -103,47 +105,36 @@ export function Canvas({
     }
 
     return (
-      <div style={{ textAlign: 'center', color: '#3a3a5d' }}>
-        <div style={{ fontSize: 40, opacity: 0.15 }}>{phase + 1}</div>
-        <div style={{ fontSize: 11, marginTop: 4, color: '#3a3a5d' }}>Phase {phase} loading...</div>
+      <div style={{ textAlign: 'center' as const, display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: 10 }}>
+        <div className="af-icon-pulse" style={{ fontSize: 48, lineHeight: 1, fontFamily: 'monospace', color: '#7c6df0' }}>{String(phase + 1).padStart(2, '0')}</div>
+        <div style={{ fontSize: 11, color: '#40405f' }}>Phase {phase + 1} loading...</div>
       </div>
     )
   }
 
   return (
     <div style={{
-      flex: 1,
-      background: '#0a0a0f',
-      padding: 20,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      position: 'relative',
-      overflow: 'hidden',
+      flex: 1, background: '#0b0b14', padding: 24,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      position: 'relative', overflow: 'hidden',
     }}>
-      {/* Background glow */}
+      {/* Ambient background glows */}
       <div style={{
-        position: 'absolute',
-        inset: 0,
-        pointerEvents: 'none',
+        position: 'absolute', inset: 0, pointerEvents: 'none',
         background: `
-          radial-gradient(circle at 30% 40%, rgba(108,92,231,0.05) 0%, transparent 50%),
-          radial-gradient(circle at 70% 60%, rgba(0,229,255,0.03) 0%, transparent 50%)
+          radial-gradient(ellipse at 25% 35%, rgba(124,109,240,0.06) 0%, transparent 55%),
+          radial-gradient(ellipse at 75% 65%, rgba(32,212,160,0.03) 0%, transparent 55%)
         `,
       }} />
 
-      {/* Phase number overlay */}
-      <div style={{ position: 'absolute', top: 20, left: 20, zIndex: 10 }}>
-        <div style={{
-          fontSize: 40, fontWeight: 700,
-          color: '#6c5ce7', opacity: 0.1,
-          fontFamily: 'monospace', lineHeight: 1,
-        }}>
+      {/* Phase number watermark */}
+      <div style={{ position: 'absolute', top: 20, left: 24, zIndex: 1, pointerEvents: 'none' }}>
+        <div style={{ fontSize: 52, fontWeight: 800, color: '#7c6df0', opacity: 0.06, fontFamily: 'monospace', lineHeight: 1, letterSpacing: '-0.04em' }}>
           {String(phase + 1).padStart(2, '0')}
         </div>
       </div>
 
-      <div style={{ position: 'relative', zIndex: 1 }}>
+      <div style={{ position: 'relative', zIndex: 2, animation: 'fade-up 0.35s cubic-bezier(0.16,1,0.3,1) both' }}>
         {renderContent()}
       </div>
     </div>

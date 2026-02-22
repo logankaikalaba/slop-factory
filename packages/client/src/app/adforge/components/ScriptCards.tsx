@@ -6,11 +6,11 @@ interface Props {
 }
 
 const SECTION_COLORS: Record<AdSection, { color: string }> = {
-  hook: { color: '#ff6b6b' },
-  problem: { color: '#ffa94d' },
-  solution: { color: '#51cf66' },
-  social_proof: { color: '#339af0' },
-  cta: { color: '#cc5de8' },
+  hook:         { color: '#f87171' },
+  problem:      { color: '#fb923c' },
+  solution:     { color: '#4ade80' },
+  social_proof: { color: '#60a5fa' },
+  cta:          { color: '#c084fc' },
 }
 
 const SECTION_LABELS: Record<AdSection, string> = {
@@ -23,54 +23,42 @@ const SECTION_LABELS: Record<AdSection, string> = {
 
 export function ScriptCards({ scripts, onApprove }: Props) {
   return (
-    <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap', justifyContent: 'center', maxWidth: 760 }}>
+    <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' as const, justifyContent: 'center', maxWidth: 800 }}>
       {scripts.map((script) => {
-        const colors = SECTION_COLORS[script.section]
+        const { color } = SECTION_COLORS[script.section]
         const approved = script.status === 'approved'
         return (
           <div
             key={script._id}
+            className="af-card"
             style={{
-              width: 140,
-              background: '#12121a',
-              border: `1px solid ${approved ? '#00e676' : '#2a2a3d'}`,
-              borderRadius: 10,
-              padding: 12,
-              position: 'relative',
-              boxShadow: approved ? '0 0 16px rgba(0,230,118,0.08)' : 'none',
-              transition: 'all 0.3s',
+              width: 148, padding: 14, position: 'relative',
+              border: `1px solid ${approved ? 'rgba(32,212,160,0.35)' : 'rgba(255,255,255,0.07)'}`,
+              boxShadow: approved ? '0 0 24px rgba(32,212,160,0.1)' : 'none',
+              transition: 'all 0.3s cubic-bezier(0.16,1,0.3,1)',
             }}
           >
             {approved && (
               <div style={{
-                position: 'absolute', top: 7, right: 7,
-                width: 16, height: 16, background: '#00e676',
-                borderRadius: '50%', display: 'flex',
-                alignItems: 'center', justifyContent: 'center', fontSize: 9,
-              }}>
-                ✓
-              </div>
+                position: 'absolute', top: 8, right: 8,
+                width: 16, height: 16, background: '#20d4a0',
+                borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, color: '#0b1a12', fontWeight: 800,
+              }}>✓</div>
             )}
-            <div style={{
-              fontSize: 9, fontWeight: 600, textTransform: 'uppercase',
-              letterSpacing: 0.5, color: colors.color, marginBottom: 6,
-            }}>
-              {SECTION_LABELS[script.section]}
+            {/* Section badge */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 8 }}>
+              <div style={{ width: 3, height: 14, borderRadius: 2, background: color, flexShrink: 0 }} />
+              <span style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase' as const, letterSpacing: '0.06em', color }}>{SECTION_LABELS[script.section]}</span>
+              <span style={{ marginLeft: 'auto', fontSize: 8, fontFamily: 'monospace', color: '#40405f' }}>{script.durationSeconds}s</span>
             </div>
-            <div style={{ fontSize: 8, fontFamily: 'monospace', color: '#7a7a95', marginBottom: 5 }}>
-              {script.durationSeconds}s
-            </div>
-            <div style={{ fontSize: 10, lineHeight: 1.45, fontWeight: 300, color: '#e4e4ef', marginBottom: 10 }}>
+            <div style={{ fontSize: 10, lineHeight: 1.6, color: '#d0d0e8', marginBottom: 12, fontWeight: 400 }}>
               {script.copyText}
             </div>
             {!approved && (
               <button
                 onClick={() => onApprove(script._id)}
-                style={{
-                  width: '100%', background: '#1a1a26',
-                  border: '1px solid #2a2a3d', borderRadius: 5,
-                  padding: '4px 0', fontSize: 9, color: '#7a7a95', cursor: 'pointer',
-                }}
+                className="af-btn af-btn-ghost"
+                style={{ width: '100%', justifyContent: 'center', fontSize: 9, padding: '5px 0' }}
               >
                 Approve ✓
               </button>
@@ -79,9 +67,7 @@ export function ScriptCards({ scripts, onApprove }: Props) {
         )
       })}
       {scripts.length === 0 && (
-        <div style={{ color: '#3a3a5d', fontSize: 11 }}>
-          Ask the copilot to generate scripts.
-        </div>
+        <div style={{ color: '#40405f', fontSize: 11 }}>Ask the copilot to generate scripts.</div>
       )}
     </div>
   )

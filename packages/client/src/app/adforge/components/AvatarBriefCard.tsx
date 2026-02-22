@@ -14,17 +14,19 @@ export function AvatarBriefCard({ avatar }: { avatar: Avatar }) {
   ]
 
   return (
-    <div style={{ background: '#12121a', border: '1px solid #2a2a3d', borderRadius: 14, padding: 24, width: 520 }}>
-      <h3 style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: 1, color: '#a29bfe', marginBottom: 16 }}>
-        🧠 Avatar Brief — &ldquo;{avatar.name}&rdquo;
-      </h3>
+    <div className="af-card" style={{ padding: 28, width: 540 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 22 }}>
+        <div style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(32,212,160,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>🧠</div>
+        <div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: '#f0f0fa', letterSpacing: '-0.01em' }}>&ldquo;{avatar.name}&rdquo;</div>
+          <div style={{ fontSize: 10, color: '#40405f', marginTop: 1 }}>Avatar brief</div>
+        </div>
+      </div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
         {fields.map(({ label, value }) => (
-          <div key={label} style={{ background: '#1a1a26', border: '1px solid #2a2a3d', borderRadius: 7, padding: 9 }}>
-            <div style={{ fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5, color: '#7a7a95', marginBottom: 3 }}>
-              {label}
-            </div>
-            <div style={{ fontSize: 10, lineHeight: 1.45, color: '#e4e4ef' }}>{value}</div>
+          <div key={label} style={{ background: '#181828', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 9, padding: '11px 12px' }}>
+            <div style={{ fontSize: 8, fontWeight: 700, textTransform: 'uppercase' as const, letterSpacing: '0.06em', color: '#40405f', marginBottom: 4 }}>{label}</div>
+            <div style={{ fontSize: 10, lineHeight: 1.5, color: '#d0d0e8' }}>{value}</div>
           </div>
         ))}
       </div>

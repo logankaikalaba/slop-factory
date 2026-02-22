@@ -45,133 +45,88 @@ export function KeyframeSelector({
 
   return (
     <div style={{ width: 600 }}>
-      {/* Progress bar */}
-      <div style={{ marginBottom: 14 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, marginBottom: 5 }}>
-          <span style={{ color: '#a29bfe', fontWeight: 600 }}>
-            {SECTION_LABELS[section]} — {position.toUpperCase()}
+      {/* ── Progress ── */}
+      <div style={{ marginBottom: 18 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+          <span style={{ fontSize: 11, fontWeight: 700, color: '#a097f7', letterSpacing: '-0.01em' }}>
+            {SECTION_LABELS[section]} <span style={{ color: '#40405f', fontWeight: 400 }}>/ {position}</span>
           </span>
-          <span style={{ color: '#7a7a95', fontFamily: 'monospace' }}>
+          <span style={{ fontSize: 10, fontFamily: 'monospace', color: '#40405f' }}>
             {completedCount} / {totalCount}
           </span>
         </div>
-        <div style={{ height: 6, background: '#222233', borderRadius: 3, overflow: 'hidden' }}>
-          <div style={{
-            height: '100%', borderRadius: 3,
-            background: 'linear-gradient(90deg,#6c5ce7,#00e676)',
-            width: `${pct}%`, transition: 'width 0.35s ease',
-          }} />
+        <div style={{ height: 4, background: 'rgba(255,255,255,0.05)', borderRadius: 2, overflow: 'hidden', marginBottom: 6 }}>
+          <div style={{ height: '100%', borderRadius: 2, background: 'linear-gradient(90deg,#7c6df0,#20d4a0)', width: `${pct}%`, transition: 'width 0.45s cubic-bezier(0.16,1,0.3,1)' }} />
         </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 3 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
           {ALL_SECTIONS.map((s, i) => (
-            <span key={s} style={{
-              fontSize: 7, fontFamily: 'monospace', textTransform: 'uppercase',
-              color: i < currentSectionIdx ? '#00e676' : i === currentSectionIdx ? '#a29bfe' : '#3a3a5d',
-            }}>
+            <span key={s} style={{ fontSize: 7, fontWeight: 700, textTransform: 'uppercase' as const, letterSpacing: '0.07em', color: i < currentSectionIdx ? '#20d4a0' : i === currentSectionIdx ? '#a097f7' : '#282840' }}>
               {SECTION_LABELS[s]}
             </span>
           ))}
         </div>
       </div>
 
-      <div style={{ textAlign: 'center', fontSize: 11, fontWeight: 600, color: '#7a7a95', margin: '12px 0' }}>
-        Select <span style={{ color: '#e4e4ef' }}>{position.toUpperCase()}</span> keyframe for{' '}
-        <span style={{ color: '#e4e4ef' }}>{SECTION_LABELS[section]}</span>
+      <div style={{ textAlign: 'center' as const, fontSize: 11, color: '#8888aa', marginBottom: 14 }}>
+        Select <strong style={{ color: '#f0f0fa' }}>{position}</strong> keyframe for <strong style={{ color: '#f0f0fa' }}>{SECTION_LABELS[section]}</strong>
       </div>
 
-      {/* Options grid */}
+      {/* ── Options grid ── */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
         {keyframes.map((kf) => {
           const isGenerating = kf.status === 'generating'
           const isSelected = kf.status === 'selected'
           const isRejected = kf.status === 'rejected'
-
           return (
             <div
               key={kf._id}
               onClick={() => !isGenerating && !isRejected && onSelect(kf._id)}
               style={{
-                height: 110,
-                borderRadius: 10,
-                border: `2px solid ${isSelected ? '#00e676' : '#2a2a3d'}`,
-                position: 'relative',
-                overflow: 'hidden',
+                height: 120, borderRadius: 12, position: 'relative', overflow: 'hidden',
                 cursor: isGenerating ? 'wait' : isRejected ? 'default' : 'pointer',
-                opacity: isRejected ? 0.2 : 1,
+                opacity: isRejected ? 0.18 : 1,
+                border: `2px solid ${isSelected ? '#20d4a0' : 'rgba(255,255,255,0.08)'}`,
                 transform: isSelected ? 'scale(1.02)' : 'scale(1)',
-                transition: 'all 0.3s',
-                boxShadow: isSelected ? '0 0 20px rgba(0,230,118,0.12)' : 'none',
+                transition: 'all 0.3s cubic-bezier(0.16,1,0.3,1)',
+                boxShadow: isSelected ? '0 0 24px rgba(32,212,160,0.2)' : 'none',
               }}
             >
               {kf.imageUrl ? (
-                <img
-                  src={kf.imageUrl}
-                  alt={`Option ${kf.variantIndex + 1}`}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                />
+                <img src={kf.imageUrl} alt={`Option ${kf.variantIndex + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' as const }} />
               ) : (
-                <div style={{
-                  position: 'absolute', inset: 0,
-                  background: GRADIENT_BG[kf.variantIndex % 4],
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}>
-                  {isGenerating ? (
-                    <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 10 }}>Generating...</span>
-                  ) : (
-                    <span style={{ color: 'rgba(255,255,255,0.25)', fontSize: 18, fontWeight: 700 }}>
-                      {kf.variantIndex + 1}
-                    </span>
-                  )}
+                <div style={{ position: 'absolute', inset: 0, background: GRADIENT_BG[kf.variantIndex % 4], display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {isGenerating
+                    ? <span style={{ color: 'rgba(255,255,255,0.25)', fontSize: 10 }}>Generating...</span>
+                    : <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: 20, fontWeight: 800 }}>{kf.variantIndex + 1}</span>
+                  }
                 </div>
               )}
               {isSelected && (
-                <div style={{
-                  position: 'absolute', top: 7, right: 7,
-                  width: 20, height: 20, background: '#00e676',
-                  borderRadius: '50%', display: 'flex',
-                  alignItems: 'center', justifyContent: 'center',
-                  fontSize: 10, zIndex: 2,
-                }}>
-                  ✓
-                </div>
+                <div style={{ position: 'absolute', top: 8, right: 8, width: 22, height: 22, background: '#20d4a0', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, color: '#0b1a12', fontWeight: 800, zIndex: 2 }}>✓</div>
               )}
             </div>
           )
         })}
         {keyframes.length === 0 && (
-          <div style={{ gridColumn: '1/-1', textAlign: 'center', color: '#3a3a5d', fontSize: 11, padding: 20 }}>
+          <div style={{ gridColumn: '1/-1', textAlign: 'center' as const, color: '#40405f', fontSize: 11, padding: 24 }}>
             Ask the copilot to generate keyframe options.
           </div>
         )}
       </div>
 
-      {/* Transition prompt */}
+      {/* ── Transition prompt ── */}
       {transitionPrompt && (
-        <div style={{
-          background: '#12121a', border: '1px solid #2a2a3d',
-          borderRadius: 9, padding: 12, marginTop: 10,
-        }}>
-          <label style={{
-            fontSize: 9, fontWeight: 600, textTransform: 'uppercase',
-            letterSpacing: 0.5, color: '#7a7a95', display: 'block', marginBottom: 5,
-          }}>
-            ✏️ Transition Prompt (editable)
-          </label>
+        <div className="af-card" style={{ padding: 14, marginTop: 12 }}>
+          <label className="af-label" style={{ marginBottom: 6 }}>✏️ Transition prompt</label>
           <div
             contentEditable
             suppressContentEditableWarning
             onBlur={(e) => onEditTransition?.(e.currentTarget.textContent ?? '')}
-            style={{
-              background: '#1a1a26', border: '1px solid #2a2a3d',
-              borderRadius: 5, padding: '7px 9px', fontSize: 10,
-              color: '#e4e4ef', lineHeight: 1.45, fontFamily: 'monospace', outline: 'none',
-            }}
+            style={{ background: '#0b0b14', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 7, padding: '8px 10px', fontSize: 10, color: '#d0d0e8', lineHeight: 1.55, fontFamily: 'monospace', outline: 'none' }}
           >
             {transitionPrompt}
           </div>
-          <div style={{ fontSize: 8, color: '#6c5ce7', marginTop: 4, fontStyle: 'italic' }}>
-            Click to edit before generation
-          </div>
+          <div style={{ fontSize: 8, color: '#7c6df0', marginTop: 4, fontStyle: 'italic' as const }}>Click to edit before generation</div>
         </div>
       )}
     </div>

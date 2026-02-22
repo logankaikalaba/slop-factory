@@ -1,4 +1,4 @@
-import { generateObject } from 'ai'
+import { streamObject } from 'ai'
 import { anthropic } from '@ai-sdk/anthropic'
 import { z } from 'zod'
 import { Avatar } from '../models/avatar.model.js'
@@ -31,8 +31,11 @@ const DeepResearchOutputSchema = z.object({
   fullBriefMd: z.string().describe('Complete markdown research report covering all sections: demographics, pain points with specific challenges, goals, emotional drivers, VOC quotes by category, deep fears, psychographic insights, content consumed, emotional journey map'),
 })
 
-export async function buildAvatarDeepResearch(avatarLabel: string) {
-  const { object } = await generateObject({
+export async function buildAvatarDeepResearch(
+  avatarLabel: string,
+  onProgress?: (completedFields: string[]) => void,
+) {
+  const stream = streamObject({
     model: anthropic('claude-sonnet-4-6'),
     schema: DeepResearchOutputSchema,
     maxTokens: 8000,
@@ -79,28 +82,40 @@ Fill all fields with specific, real insights about "${avatarLabel}":
 **fullBriefMd**: A complete, well-formatted markdown research report. Use headers for each section. Include all the above plus: what content they consume, who they follow, what "winning" looks like, what they'd brag about, and what they secretly want but won't say out loud. This should read like a professional market research document a copywriter can hand to a client.`,
   })
 
+  // Stream partial objects and notify caller each time a new top-level field appears
+  const seenFields = new Set<string>()
+  for await (const partial of stream.partialObjectStream) {
+    const newFields = Object.keys(partial).filter((k) => !seenFields.has(k))
+    if (newFields.length > 0) {
+      for (const f of newFields) seenFields.add(f)
+      onProgress?.([...seenFields])
+    }
+  }
+
+  const result = await stream.object
+
   const avatar = await Avatar.create({
-    name: object.name,
+    name: result.name,
     demographics: {
-      age: object.demographics.age,
-      income: object.demographics.income,
-      location: object.demographics.location,
-      jobTitle: object.demographics.jobTitle,
-      gender: object.demographics.gender,
+      age: result.demographics.age,
+      income: result.demographics.income,
+      location: result.demographics.location,
+      jobTitle: result.demographics.jobTitle,
+      gender: result.demographics.gender,
     },
     psychographics: {
-      values: object.psychographics.values,
-      fears: object.psychographics.fears,
-      worldview: object.psychographics.worldview,
+      values: result.psychographics.values,
+      fears: result.psychographics.fears,
+      worldview: result.psychographics.worldview,
     },
-    painPoints: object.painPoints,
-    failedSolutions: object.failedSolutions,
-    languagePatterns: object.languagePatterns,
-    objections: object.objections,
-    triggerEvents: object.triggerEvents,
-    aspirations: object.aspirations,
-    worldview: object.worldview,
-    fullBriefMd: object.fullBriefMd,
+    painPoints: result.painPoints,
+    failedSolutions: result.failedSolutions,
+    languagePatterns: result.languagePatterns,
+    objections: result.objections,
+    triggerEvents: result.triggerEvents,
+    aspirations: result.aspirations,
+    worldview: result.worldview,
+    fullBriefMd: result.fullBriefMd,
   })
 
   return avatar
