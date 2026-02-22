@@ -1,0 +1,23 @@
+{
+  "name": "slop-factory",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm -r --parallel dev",
+    "dev:server": "pnpm --filter @slop-factory/server dev",
+    "dev:client": "pnpm --filter @slop-factory/client dev",
+    "build": "pnpm --filter @slop-factory/shared build && pnpm -r --parallel --filter !@slop-factory/shared build",
+    "build:shared": "pnpm --filter @slop-factory/shared build",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck",
+    "clean": "pnpm -r clean"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "prettier": "^3.4.0"
+  },
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=9"
+  },
+  "packageManager": "pnpm@9.15.0"
+}
