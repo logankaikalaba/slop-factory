@@ -324,7 +324,7 @@ RULES:
                   const taskId = await generateVideo({
                     imageUrl: t.kfUrl,
                     prompt: segment.videoPrompt,
-                    model: segment.model,
+                    model: segment.aiModel,
                     duration: segment.durationSeconds,
                   })
                   await VideoSegment.findByIdAndUpdate(segment._id, {
